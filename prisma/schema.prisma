@@ -1,0 +1,226 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Auth & Organization
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  clerkId       String    @unique
+  name          String?
+  avatar        String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  organizations Organization[]
+  tasks         Task[]
+}
+
+model Organization {
+  id            String    @id @default(cuid())
+  name          String
+  slug          String    @unique
+  logo          String?
+  website       String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  users         User[]
+  agents        Agent[]
+  integrations  Integration[]
+  tasks         Task[]
+  subscription  Subscription?
+}
+
+// Subscriptions & Billing
+enum SubscriptionTier {
+  RECRUIT
+  OPERATOR
+  EMPIRE
+  CUSTOM
+}
+
+model Subscription {
+  id                String            @id @default(cuid())
+  organizationId    String            @unique
+  organization      Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  tier              SubscriptionTier  @default(RECRUIT)
+  stripeCustomerId  String?           @unique
+  stripeSubId       String?           @unique
+  status            String            // active, trialing, past_due, canceled, unpaid
+  currentPeriodEnd  DateTime?
+  canceledAt        DateTime?
+
+  // Tier limits
+  maxAgents         Int               @default(1)
+  maxConnectors     Int               @default(3)
+  maxModels         Int               @default(2)
+  monthlyRunLimit   Int               @default(500)
+
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+}
+
+// AI Agents
+enum AgentModel {
+  CLAUDE_OPUS
+  CLAUDE_SONNET
+  GPT_4O
+  GEMINI_PRO
+  LLAMA_70B
+  MISTRAL_LARGE
+}
+
+enum AgentStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+model Agent {
+  id              String            @id @default(cuid())
+  organizationId  String
+  organization    Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  name            String
+  description     String?
+  role            String            // e.g., "Sales Development Rep"
+  status          AgentStatus       @default(DRAFT)
+  model           AgentModel        @default(CLAUDE_OPUS)
+
+  // Configuration
+  systemPrompt    String?           // Custom instructions
+  tools           String[]          // JSON array of connected tool IDs
+  temperature     Float             @default(0.7)
+  maxTokens       Int               @default(2000)
+
+  // Execution
+  schedule        String?           // cron expression
+  lastRun         DateTime?
+  nextRun         DateTime?
+  isRunning       Boolean           @default(false)
+
+  // Memory & Context
+  contextWindow   String?           // JSON serialized memory
+  memorySummary   String?
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Relations
+  tasks           Task[]
+}
+
+// Task Execution
+enum TaskStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELED
+}
+
+model Task {
+  id              String            @id @default(cuid())
+  organizationId  String
+  organization    Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  agentId         String
+  agent           Agent             @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  status          TaskStatus        @default(PENDING)
+  prompt          String
+  result          String?           // JSON result from agent
+  error           String?
+
+  // Execution details
+  startedAt       DateTime?
+  completedAt     DateTime?
+  duration        Int?              // milliseconds
+  tokensUsed      Int?
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+}
+
+// Integrations
+enum IntegrationProvider {
+  // CRM
+  SALESFORCE
+  HUBSPOT
+  PIPEDRIVE
+
+  // Communications
+  SLACK
+  MS_TEAMS
+  DISCORD
+  TELEGRAM
+
+  // Productivity
+  GOOGLE_WORKSPACE
+  MICROSOFT_365
+  NOTION
+  AIRTABLE
+
+  // Automation
+  ZAPIER
+  MAKE
+
+  // AI Tools
+  OPENAI
+  ANTHROPIC
+  GOOGLE_AI
+  PERPLEXITY
+
+  // Other
+  STRIPE
+  CUSTOM_API
+}
+
+model Integration {
+  id              String                @id @default(cuid())
+  organizationId  String
+  organization    Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  provider        IntegrationProvider
+  name            String                // User-friendly name
+  displayName     String?               // e.g., "sarah's salesforce"
+
+  // Auth & Config
+  accessToken     String?               // Encrypted
+  refreshToken    String?               // Encrypted
+  expiresAt       DateTime?
+  config          String?               // JSON config
+
+  isActive        Boolean               @default(true)
+  lastSyncAt      DateTime?
+  lastError       String?
+
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  @@unique([organizationId, provider])
+}
+
+// API Keys for webhooks
+model ApiKey {
+  id              String            @id @default(cuid())
+  organizationId  String
+  key             String            @unique
+  name            String
+  lastUsedAt      DateTime?
+  createdAt       DateTime          @default(now())
+}
