@@ -1,6 +1,7 @@
 import { router, protectedProcedure } from '../trpc';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
+import { inngest } from '@/inngest/client';
 import { TRPCError } from '@trpc/server';
 import { TaskStatus } from '@prisma/client';
 
@@ -54,8 +55,22 @@ export const tasksRouter = router({
         },
       });
 
-      // TODO: Queue task with Inngest in Phase 4
-      // For now, mark as failed until agent engine is built
+      // Queue task execution with Inngest
+      try {
+        await inngest.send({
+          name: 'agent/task.execute',
+          data: {
+            taskId: task.id,
+            agentId: input.agentId,
+            organizationId: ctx.orgId,
+            prompt: input.prompt,
+          },
+        });
+      } catch (error) {
+        console.error('Failed to queue task with Inngest:', error);
+        // Continue anyway - task is created in DB
+      }
+
       return task;
     }),
 
