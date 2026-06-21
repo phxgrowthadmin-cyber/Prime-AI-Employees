@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
+import { TRPCProvider } from '@/components/providers/trpc-provider';
 import './globals.css';
 
 const geistSans = Geist({
@@ -28,19 +29,21 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html
-        lang="en"
-        className={`${geistSans.variable} ${geistMono.variable} h-full antialiased scroll-smooth`}
-        suppressHydrationWarning
-      >
-        <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-          <meta name="theme-color" content="#08090A" />
-        </head>
-        <body className="bg-bg-primary text-text-primary min-h-full flex flex-col">
-          {children}
-        </body>
-      </html>
+      <TRPCProvider>
+        <html
+          lang="en"
+          className={`${geistSans.variable} ${geistMono.variable} h-full antialiased scroll-smooth`}
+          suppressHydrationWarning
+        >
+          <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+            <meta name="theme-color" content="#08090A" />
+          </head>
+          <body className="bg-bg-primary text-text-primary min-h-full flex flex-col">
+            {children}
+          </body>
+        </html>
+      </TRPCProvider>
     </ClerkProvider>
   );
 }
