@@ -1,65 +1,190 @@
-import Image from "next/image";
+"use client";
+
+import { SignUpButton } from "@clerk/nextjs";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { ArrowRight, Menu, X } from "lucide-react";
+import { useState } from "react";
+import { NeuralNetworkHero } from "@/components/3d/neural-network-hero";
+import { AgentShowcase } from "@/components/marketing/agent-showcase";
+import { FeaturesSection } from "@/components/marketing/features-section";
+import { IntegrationsShowcase } from "@/components/marketing/integrations-showcase";
+import { PricingSection } from "@/components/marketing/pricing-section";
+import { CTASection } from "@/components/marketing/cta-section";
 
 export default function Home() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="min-h-screen bg-bg-primary text-text-primary overflow-x-hidden">
+      {/* Navigation */}
+      <nav className="fixed top-0 w-full border-b border-border bg-bg-primary/95 backdrop-blur supports-[backdrop-filter]:bg-bg-primary/60 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="font-bold text-2xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            NEXUS
+          </motion.div>
+
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center gap-8">
+            <Link href="#agents" className="text-text-2 hover:text-primary transition font-medium">
+              Agents
+            </Link>
+            <Link href="#features" className="text-text-2 hover:text-primary transition font-medium">
+              Features
+            </Link>
+            <Link href="#pricing" className="text-text-2 hover:text-primary transition font-medium">
+              Pricing
+            </Link>
+            <Link href="#integrations" className="text-text-2 hover:text-primary transition font-medium">
+              Integrations
+            </Link>
+
+            <div className="pl-8 border-l border-border flex gap-4">
+              <SignUpButton mode="modal">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-6 py-2 rounded-lg border border-primary text-primary hover:bg-primary/10 transition font-semibold"
+                >
+                  Sign In
+                </motion.button>
+              </SignUpButton>
+              <SignUpButton mode="modal">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-6 py-2 rounded-lg bg-gradient-to-r from-primary to-primary/80 text-white hover:shadow-lg hover:shadow-primary/50 transition font-semibold"
+                >
+                  Get Started
+                </motion.button>
+              </SignUpButton>
+            </div>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 rounded-lg hover:bg-surface transition"
           >
-            Documentation
-          </a>
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
-      </main>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="md:hidden border-t border-border bg-bg-primary/80 backdrop-blur p-4 space-y-3"
+          >
+            <Link href="#agents" className="block text-text-2 hover:text-primary transition py-2">
+              Agents
+            </Link>
+            <Link href="#features" className="block text-text-2 hover:text-primary transition py-2">
+              Features
+            </Link>
+            <Link href="#pricing" className="block text-text-2 hover:text-primary transition py-2">
+              Pricing
+            </Link>
+            <Link href="#integrations" className="block text-text-2 hover:text-primary transition py-2">
+              Integrations
+            </Link>
+            <SignUpButton mode="modal">
+              <button className="w-full px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition font-semibold">
+                Get Started
+              </button>
+            </SignUpButton>
+          </motion.div>
+        )}
+      </nav>
+
+      {/* Hero with 3D */}
+      <section className="pt-20">
+        <NeuralNetworkHero />
+
+        {/* Scroll Indicator */}
+        <div className="flex justify-center pt-12 pb-8">
+          <motion.div
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="flex flex-col items-center gap-2 text-text-3"
+          >
+            <p className="text-sm font-semibold">Scroll to explore</p>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Agent Showcase */}
+      <section id="agents">
+        <AgentShowcase />
+      </section>
+
+      {/* Features */}
+      <section id="features">
+        <FeaturesSection />
+      </section>
+
+      {/* Integrations */}
+      <section id="integrations">
+        <IntegrationsShowcase />
+      </section>
+
+      {/* Pricing */}
+      <section id="pricing">
+        <PricingSection />
+      </section>
+
+      {/* CTA */}
+      <section>
+        <CTASection />
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-border bg-surface/50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-8 mb-12">
+            <div>
+              <div className="font-bold text-lg text-primary mb-4">NEXUS AI</div>
+              <p className="text-text-2 text-sm">Enterprise AI agents that work like real employees.</p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Product</h4>
+              <ul className="space-y-2 text-text-2 text-sm">
+                <li><Link href="#agents" className="hover:text-primary transition">Agents</Link></li>
+                <li><Link href="#features" className="hover:text-primary transition">Features</Link></li>
+                <li><Link href="#pricing" className="hover:text-primary transition">Pricing</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Company</h4>
+              <ul className="space-y-2 text-text-2 text-sm">
+                <li><Link href="#" className="hover:text-primary transition">About</Link></li>
+                <li><Link href="#" className="hover:text-primary transition">Blog</Link></li>
+                <li><Link href="#" className="hover:text-primary transition">Careers</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Legal</h4>
+              <ul className="space-y-2 text-text-2 text-sm">
+                <li><Link href="#" className="hover:text-primary transition">Privacy</Link></li>
+                <li><Link href="#" className="hover:text-primary transition">Terms</Link></li>
+                <li><Link href="#" className="hover:text-primary transition">Security</Link></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-border pt-8 text-center text-text-3 text-sm">
+            <p>© 2024 NEXUS AI. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
