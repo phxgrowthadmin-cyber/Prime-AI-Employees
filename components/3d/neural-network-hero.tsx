@@ -2,50 +2,139 @@
 
 import { useEffect, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Points, PointMaterial, Preload } from "@react-three/drei";
+import { Preload } from "@react-three/drei";
 import * as THREE from "three";
 
-function NeuralNetwork() {
-  const ref = useRef<THREE.Points>(null);
-  const { camera } = useThree();
+interface SocialIconParticle {
+  position: THREE.Vector3;
+  velocity: THREE.Vector3;
+  angle: number;
+  angleVelocity: number;
+  icon: string;
+  color: string;
+}
+
+const SOCIAL_PLATFORMS = [
+  { name: "Instagram", icon: "📷", color: "#E4405F" },
+  { name: "X", icon: "𝕏", color: "#000000" },
+  { name: "TikTok", icon: "♪", color: "#000000" },
+  { name: "YouTube", icon: "▶", color: "#FF0000" },
+  { name: "LinkedIn", icon: "in", color: "#0A66C2" },
+  { name: "Snapchat", icon: "👻", color: "#FFFC00" },
+  { name: "Discord", icon: "◉", color: "#5865F2" },
+  { name: "Telegram", icon: "✈", color: "#0088cc" },
+];
+
+function SocialNetworkScene() {
+  const ref = useRef<THREE.Group>(null);
+  const { camera, scene } = useThree();
+  const particlesRef = useRef<SocialIconParticle[]>([]);
 
   useEffect(() => {
     camera.position.z = 30;
   }, [camera]);
 
-  // Generate particle positions in a neural network pattern
-  const particlesArray = useRef<Float32Array | null>(null);
-
   useEffect(() => {
-    const count = 2000;
-    const positions = new Float32Array(count * 3);
+    // Create social media particles
+    const particles: SocialIconParticle[] = [];
+    const particleCount = 120;
 
-    for (let i = 0; i < count * 3; i += 3) {
-      // Create neural network-like clusters
+    for (let i = 0; i < particleCount; i++) {
       const angle = Math.random() * Math.PI * 2;
       const radius = Math.random() * 20;
       const depth = (Math.random() - 0.5) * 40;
 
-      positions[i] = Math.cos(angle) * radius;
-      positions[i + 1] = Math.sin(angle) * radius;
-      positions[i + 2] = depth;
+      const platform = SOCIAL_PLATFORMS[Math.floor(Math.random() * SOCIAL_PLATFORMS.length)];
+
+      particles.push({
+        position: new THREE.Vector3(Math.cos(angle) * radius, Math.sin(angle) * radius, depth),
+        velocity: new THREE.Vector3(
+          (Math.random() - 0.5) * 0.02,
+          (Math.random() - 0.5) * 0.02,
+          (Math.random() - 0.5) * 0.01
+        ),
+        angle: Math.random() * Math.PI * 2,
+        angleVelocity: (Math.random() - 0.5) * 0.02,
+        icon: platform.icon,
+        color: platform.color,
+      });
     }
 
-    particlesArray.current = positions;
+    particlesRef.current = particles;
+
+    // Create meshes for each particle
+    particles.forEach((particle) => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 256;
+      canvas.height = 256;
+      const ctx = canvas.getContext("2d")!;
+
+      // Draw background circle
+      ctx.fillStyle = particle.color;
+      ctx.beginPath();
+      ctx.arc(128, 128, 100, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Draw icon
+      ctx.fillStyle = "white";
+      ctx.font = "bold 120px Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(particle.icon, 128, 128);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
+      const geometry = new THREE.PlaneGeometry(1, 1);
+      const mesh = new THREE.Mesh(geometry, material);
+
+      mesh.position.copy(particle.position);
+      mesh.rotation.z = particle.angle;
+
+      (mesh as any).userData = {
+        particle,
+        originalZ: mesh.position.z,
+      };
+
+      if (ref.current) {
+        ref.current.add(mesh);
+      }
+    });
   }, []);
 
   useFrame(() => {
     if (ref.current) {
-      ref.current.rotation.x += 0.0001;
-      ref.current.rotation.y += 0.0002;
+      ref.current.rotation.x += 0.00005;
+      ref.current.rotation.y += 0.0001;
+
+      // Update particles
+      ref.current.children.forEach((mesh) => {
+        const meshData = (mesh as any).userData;
+        if (meshData?.particle) {
+          const particle = meshData.particle;
+
+          // Update position
+          particle.position.add(particle.velocity);
+
+          // Bounce off boundaries
+          if (Math.abs(particle.position.x) > 25) particle.velocity.x *= -1;
+          if (Math.abs(particle.position.y) > 25) particle.velocity.y *= -1;
+          if (Math.abs(particle.position.z) > 40) particle.velocity.z *= -1;
+
+          // Update angle
+          particle.angle += particle.angleVelocity;
+
+          // Apply to mesh
+          mesh.position.copy(particle.position);
+          mesh.rotation.z = particle.angle;
+
+          // Add subtle bob animation
+          mesh.position.y += Math.sin(Date.now() * 0.001 + particle.position.x) * 0.02;
+        }
+      });
     }
   });
 
-  return (
-    <Points ref={ref} positions={particlesArray.current || new Float32Array()} stride={3} frustumCulled={false}>
-      <PointMaterial transparent color="#6C63FF" size={0.2} sizeAttenuation={true} depthWrite={false} />
-    </Points>
-  );
+  return <group ref={ref} />;
 }
 
 export function NeuralNetworkHero() {
@@ -53,7 +142,7 @@ export function NeuralNetworkHero() {
     <div className="relative w-full h-[600px] bg-gradient-to-b from-bg-primary via-bg-primary to-surface overflow-hidden">
       {/* 3D Canvas */}
       <Canvas className="absolute inset-0" style={{ background: "transparent" }}>
-        <NeuralNetwork />
+        <SocialNetworkScene />
         <Preload all />
       </Canvas>
 

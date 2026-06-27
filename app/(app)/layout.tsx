@@ -1,54 +1,98 @@
-import { ReactNode } from 'react';
-import { UserButton } from '@clerk/nextjs';
+"use client";
 
-export default function AppLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+import { UserButton, useAuth } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Zap, LayoutDashboard, Brain, Settings, CreditCard, ListChecks, LogOut } from "lucide-react";
+import { useState } from "react";
+
+export default function AppLayout({ children }: { children: React.ReactNode }) {
+  const { isLoaded, userId } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  if (!isLoaded) return null;
+  if (!userId) redirect("/sign-in");
+
+  const menuItems = [
+    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { label: "Agents", href: "/dashboard/agents", icon: Brain },
+    { label: "Integrations", href: "/dashboard/integrations", icon: Settings },
+    { label: "Tasks", href: "/dashboard/tasks", icon: ListChecks },
+    { label: "Billing", href: "/dashboard/billing", icon: CreditCard },
+  ];
+
   return (
-    <div className="flex h-screen flex-col">
-      <header className="border-b border-border-default bg-bg-secondary px-6 py-4 flex items-center justify-between">
-        <div className="text-xl font-bold text-primary">NEXUS</div>
-        <UserButton />
-      </header>
-      <div className="flex flex-1 overflow-hidden">
-        <aside className="w-64 border-r border-default bg-bg-secondary overflow-y-auto">
-          <nav className="p-4 space-y-2">
-            <a
-              href="/dashboard"
-              className="block px-4 py-2 rounded-lg hover:bg-bg-tertiary text-text-secondary hover:text-text-primary transition"
+    <div className="flex h-screen bg-bg-primary">
+      {/* Sidebar */}
+      <motion.aside
+        initial={{ x: -300 }}
+        animate={{ x: sidebarOpen ? 0 : -300 }}
+        className="fixed md:static w-64 bg-surface border-r border-border h-screen overflow-y-auto z-40 md:translate-x-0"
+      >
+        <div className="p-6 flex items-center gap-2 border-b border-border">
+          <Zap className="w-6 h-6 text-primary" />
+          <span className="font-bold text-lg">NEXUS</span>
+        </div>
+
+        <nav className="p-4 space-y-2">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.href} href={item.href}>
+                <motion.div
+                  whileHover={{ x: 4 }}
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-text-2 hover:text-primary hover:bg-primary/10 transition cursor-pointer"
+                >
+                  <Icon className="w-5 h-5" />
+                  {item.label}
+                </motion.div>
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="absolute bottom-6 left-6 right-6 p-4 rounded-lg bg-primary/10 border border-primary/30">
+          <p className="text-sm text-primary font-semibold mb-2">Upgrade Plan</p>
+          <p className="text-xs text-text-2 mb-3">Get more agents and integrations</p>
+          <button className="w-full py-2 bg-primary text-white rounded font-semibold text-sm hover:bg-primary/90">
+            Upgrade Now
+          </button>
+        </div>
+      </motion.aside>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top Bar */}
+        <div className="border-b border-border bg-surface/50 backdrop-blur px-6 py-4 flex items-center justify-between">
+          <div className="md:hidden">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 hover:bg-surface rounded-lg"
             >
-              Dashboard
-            </a>
-            <a
-              href="/dashboard/agents"
-              className="block px-4 py-2 rounded-lg hover:bg-bg-tertiary text-text-secondary hover:text-text-primary transition"
-            >
-              Agents
-            </a>
-            <a
-              href="/dashboard/tasks"
-              className="block px-4 py-2 rounded-lg hover:bg-bg-tertiary text-text-secondary hover:text-text-primary transition"
-            >
-              Tasks
-            </a>
-            <a
-              href="/dashboard/integrations"
-              className="block px-4 py-2 rounded-lg hover:bg-bg-tertiary text-text-secondary hover:text-text-primary transition"
-            >
-              Integrations
-            </a>
-            <a
-              href="/dashboard/billing"
-              className="block px-4 py-2 rounded-lg hover:bg-bg-tertiary text-text-secondary hover:text-text-primary transition"
-            >
-              Billing
-            </a>
-          </nav>
-        </aside>
-        <main className="flex-1 overflow-y-auto p-8">{children}</main>
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+          <div className="ml-auto flex items-center gap-4">
+            <UserButton />
+          </div>
+        </div>
+
+        {/* Page Content */}
+        <main className="flex-1 overflow-auto">
+          {children}
+        </main>
       </div>
+
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
     </div>
   );
 }

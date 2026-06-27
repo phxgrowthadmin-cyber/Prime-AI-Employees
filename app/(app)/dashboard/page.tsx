@@ -1,95 +1,136 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { trpc } from '@/lib/trpc-client';
+import { useAuth } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
+import { motion } from "framer-motion";
+import { Plus, TrendingUp, Clock, Zap, Activity, Settings } from "lucide-react";
+import Link from "next/link";
 
 export default function DashboardPage() {
-  const { data: subscription } = trpc.subscription.getCurrent.useQuery();
-  const { data: usage } = trpc.subscription.getUsage.useQuery();
-  const { data: taskStats } = trpc.tasks.getStats.useQuery();
+  const { isLoaded, userId } = useAuth();
+
+  if (!isLoaded) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!userId) {
+    redirect("/sign-in");
+  }
 
   const stats = [
     {
-      label: 'Active Agents',
-      value: usage?.agents.used || '0',
-      max: usage?.agents.limit,
-      icon: '🤖',
+      label: "Active Agents",
+      value: "0",
+      icon: Zap,
+      color: "text-primary",
+      bgColor: "bg-primary/10",
     },
     {
-      label: 'Tasks This Month',
-      value: usage?.tasksThisMonth.used || '0',
-      max: usage?.tasksThisMonth.limit,
-      icon: '✓',
+      label: "Tasks Today",
+      value: "0",
+      icon: Activity,
+      color: "text-secondary",
+      bgColor: "bg-secondary/10",
     },
     {
-      label: 'Success Rate',
-      value: `${taskStats?.successRate || 0}%`,
-      icon: '📊',
+      label: "Integrations",
+      value: "0",
+      icon: TrendingUp,
+      color: "text-accent",
+      bgColor: "bg-accent/10",
     },
     {
-      label: 'Avg Response Time',
-      value: `${Math.round((taskStats?.avgDuration || 0) / 1000)}ms`,
-      icon: '⚡',
+      label: "Uptime",
+      value: "99.9%",
+      icon: Clock,
+      color: "text-primary",
+      bgColor: "bg-primary/10",
     },
   ];
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-4xl font-bold mb-2">Dashboard</h1>
-        <p className="text-text-secondary">
-          Plan: <span className="font-semibold text-primary">{subscription?.tier || 'RECRUIT'}</span>
-        </p>
-      </div>
+    <div className="min-h-screen bg-bg-primary">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-12"
+        >
+          <h1 className="text-4xl font-bold mb-2">Welcome back!</h1>
+          <p className="text-text-2">Manage your AI agents and automations.</p>
+        </motion.div>
 
-      {/* Quick Stats */}
-      <div className="grid md:grid-cols-4 gap-4">
-        {stats.map((stat, i) => (
-          <div key={i} className="glass p-6 rounded-lg space-y-2">
-            <div className="text-2xl">{stat.icon}</div>
-            <p className="text-text-secondary text-sm">{stat.label}</p>
-            <p className="text-3xl font-bold">{stat.value}</p>
-            {stat.max && (
-              <p className="text-xs text-text-tertiary">
-                {usage?.agents.used || 0} of {stat.max === -1 ? '∞' : stat.max}
-              </p>
-            )}
-          </div>
-        ))}
-      </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="grid md:grid-cols-4 gap-6 mb-12"
+        >
+          {stats.map((stat, i) => {
+            const Icon = stat.icon;
+            return (
+              <div
+                key={i}
+                className="rounded-xl p-6 border border-border bg-surface/40 backdrop-blur hover:border-primary/50 transition"
+              >
+                <div className={`${stat.bgColor} w-12 h-12 rounded-lg flex items-center justify-center mb-4`}>
+                  <Icon className={`w-6 h-6 ${stat.color}`} />
+                </div>
+                <p className="text-text-2 text-sm mb-1">{stat.label}</p>
+                <p className="text-3xl font-bold">{stat.value}</p>
+              </div>
+            );
+          })}
+        </motion.div>
 
-      {/* Quick Actions */}
-      <div className="bg-bg-secondary rounded-lg p-8 space-y-4">
-        <h2 className="text-2xl font-bold">Get Started</h2>
-        <div className="grid md:grid-cols-2 gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="grid md:grid-cols-2 gap-6 mb-12"
+        >
           <Link href="/dashboard/agents/new">
-            <Button variant="outline" className="w-full text-left">
-              <div className="text-left">
-                <div className="font-semibold">Create First Agent</div>
-                <div className="text-sm text-text-secondary">Deploy your first AI employee</div>
+            <div className="group rounded-xl p-8 border-2 border-dashed border-primary/50 bg-primary/5 hover:border-primary hover:bg-primary/10 transition cursor-pointer h-full flex flex-col items-center justify-center text-center gap-4">
+              <div className="p-4 rounded-lg bg-primary/20 group-hover:bg-primary/30 transition">
+                <Plus className="w-8 h-8 text-primary" />
               </div>
-            </Button>
-          </Link>
-          <Link href="/dashboard/integrations">
-            <Button variant="outline" className="w-full text-left">
-              <div className="text-left">
-                <div className="font-semibold">Connect Tools</div>
-                <div className="text-sm text-text-secondary">Link your business apps</div>
+              <div>
+                <h3 className="font-bold text-lg">Create New Agent</h3>
+                <p className="text-text-2 text-sm">Build your first AI agent</p>
               </div>
-            </Button>
+            </div>
           </Link>
-        </div>
-      </div>
 
-      {/* Recent Activity */}
-      <div className="glass p-6 rounded-lg">
-        <h2 className="text-2xl font-bold mb-4">Recent Activity</h2>
-        <div className="text-text-secondary text-center py-8">
-          {taskStats?.total === 0
-            ? 'No activity yet. Create your first agent to get started!'
-            : 'Task activity will appear here'}
-        </div>
+          <Link href="/dashboard/integrations">
+            <div className="group rounded-xl p-8 border-2 border-dashed border-secondary/50 bg-secondary/5 hover:border-secondary hover:bg-secondary/10 transition cursor-pointer h-full flex flex-col items-center justify-center text-center gap-4">
+              <div className="p-4 rounded-lg bg-secondary/20 group-hover:bg-secondary/30 transition">
+                <Settings className="w-8 h-8 text-secondary" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg">Connect Tools</h3>
+                <p className="text-text-2 text-sm">Add integrations</p>
+              </div>
+            </div>
+          </Link>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="rounded-xl p-8 border border-border bg-surface/40 backdrop-blur"
+        >
+          <h2 className="text-2xl font-bold mb-6">Recent Activity</h2>
+          <div className="text-center py-12">
+            <Activity className="w-12 h-12 text-text-3 mx-auto mb-4" />
+            <p className="text-text-2">No activity yet. Create your first agent to get started!</p>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
