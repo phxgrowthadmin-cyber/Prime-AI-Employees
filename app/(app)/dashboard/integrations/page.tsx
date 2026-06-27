@@ -143,9 +143,10 @@ export default function IntegrationsPage() {
                       </button>
                     ) : (
                       <button
-                        onClick={() =>
-                          handleConnect(integration.provider, integration.name)
-                        }
+                        onClick={() => {
+                          alert(`Clicked: ${integration.name}`);
+                          handleConnect(integration.provider, integration.name);
+                        }}
                         disabled={isLoading}
                         className="w-full py-2 rounded-lg font-semibold transition flex items-center justify-center gap-2 border border-primary text-primary hover:bg-primary/10 disabled:opacity-50"
                       >
