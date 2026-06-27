@@ -30,9 +30,9 @@ export const agentsRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        name: z.string().min(1).max(100),
-        description: z.string().max(500).optional(),
-        role: z.string().min(1).max(100),
+        name: z.string().min(1).max(200),
+        description: z.string().max(1000).optional(),
+        role: z.string().min(1).max(400),
         model: z.nativeEnum(AgentModel).default('CLAUDE_OPUS'),
         systemPrompt: z.string().max(5000).optional(),
       })

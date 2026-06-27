@@ -5,9 +5,13 @@ import { redirect } from "next/navigation";
 import { motion } from "framer-motion";
 import { Plus, TrendingUp, Clock, Zap, Activity, Settings } from "lucide-react";
 import Link from "next/link";
+import { trpc } from "@/lib/trpc";
 
 export default function DashboardPage() {
   const { isLoaded, userId } = useAuth();
+  const tasksStats = trpc.tasks.getStats.useQuery();
+  const agentsList = trpc.agents.list.useQuery();
+  const subscriptionUsage = trpc.subscription.getUsage.useQuery();
 
   if (!isLoaded) {
     return (
@@ -21,31 +25,37 @@ export default function DashboardPage() {
     redirect("/sign-in");
   }
 
+  const isLoading = tasksStats.isLoading || agentsList.isLoading || subscriptionUsage.isLoading;
+
+  const activeAgents = agentsList.data?.filter(a => a.status === 'ACTIVE').length ?? 0;
+  const tasksToday = tasksStats.data?.total ?? 0;
+  const connectedIntegrations = subscriptionUsage.data?.integrations ?? 0;
+
   const stats = [
     {
       label: "Active Agents",
-      value: "0",
+      value: isLoading ? "..." : activeAgents.toString(),
       icon: Zap,
       color: "text-primary",
       bgColor: "bg-primary/10",
     },
     {
       label: "Tasks Today",
-      value: "0",
+      value: isLoading ? "..." : tasksToday.toString(),
       icon: Activity,
       color: "text-secondary",
       bgColor: "bg-secondary/10",
     },
     {
       label: "Integrations",
-      value: "0",
+      value: isLoading ? "..." : connectedIntegrations.toString(),
       icon: TrendingUp,
       color: "text-accent",
       bgColor: "bg-accent/10",
     },
     {
-      label: "Uptime",
-      value: "99.9%",
+      label: "Success Rate",
+      value: isLoading ? "..." : tasksStats.data?.successRate ? `${Math.round(tasksStats.data.successRate * 100)}%` : "0%",
       icon: Clock,
       color: "text-primary",
       bgColor: "bg-primary/10",
@@ -125,10 +135,24 @@ export default function DashboardPage() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="rounded-xl p-8 border border-border bg-surface/40 backdrop-blur"
         >
-          <h2 className="text-2xl font-bold mb-6">Recent Activity</h2>
-          <div className="text-center py-12">
-            <Activity className="w-12 h-12 text-text-3 mx-auto mb-4" />
-            <p className="text-text-2">No activity yet. Create your first agent to get started!</p>
+          <h2 className="text-2xl font-bold mb-6">Task Stats</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <p className="text-text-secondary text-sm">Total Tasks</p>
+              <p className="text-2xl font-bold">{isLoading ? "..." : tasksStats.data?.total ?? 0}</p>
+            </div>
+            <div>
+              <p className="text-text-secondary text-sm">Completed</p>
+              <p className="text-2xl font-bold text-success">{isLoading ? "..." : tasksStats.data?.completed ?? 0}</p>
+            </div>
+            <div>
+              <p className="text-text-secondary text-sm">Running</p>
+              <p className="text-2xl font-bold text-secondary">{isLoading ? "..." : tasksStats.data?.running ?? 0}</p>
+            </div>
+            <div>
+              <p className="text-text-secondary text-sm">Failed</p>
+              <p className="text-2xl font-bold text-error">{isLoading ? "..." : tasksStats.data?.failed ?? 0}</p>
+            </div>
           </div>
         </motion.div>
       </div>

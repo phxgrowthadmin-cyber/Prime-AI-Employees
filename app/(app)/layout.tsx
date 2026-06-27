@@ -1,15 +1,16 @@
 "use client";
 
 import { UserButton, useAuth } from "@clerk/nextjs";
-import { redirect } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Zap, LayoutDashboard, Brain, Settings, CreditCard, ListChecks, LogOut } from "lucide-react";
+import { Zap, LayoutDashboard, Brain, Settings, CreditCard, ListChecks } from "lucide-react";
 import { useState } from "react";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { isLoaded, userId } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
 
   if (!isLoaded) return null;
   if (!userId) redirect("/sign-in");
@@ -38,11 +39,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <nav className="p-4 space-y-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
+            const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
             return (
               <Link key={item.href} href={item.href}>
                 <motion.div
                   whileHover={{ x: 4 }}
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-text-2 hover:text-primary hover:bg-primary/10 transition cursor-pointer"
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition cursor-pointer ${
+                    isActive
+                      ? 'text-primary bg-primary/10 border-l-2 border-primary'
+                      : 'text-text-secondary hover:text-primary hover:bg-primary/10'
+                  }`}
                 >
                   <Icon className="w-5 h-5" />
                   {item.label}
@@ -64,11 +70,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Bar */}
-        <div className="border-b border-border bg-surface/50 backdrop-blur px-6 py-4 flex items-center justify-between">
+        <div className="border-b border-border bg-bg-secondary/50 backdrop-blur px-6 py-4 flex items-center justify-between">
           <div className="md:hidden">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 hover:bg-surface rounded-lg"
+              className="p-2 hover:bg-bg-tertiary rounded-lg"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
