@@ -1,0 +1,185 @@
+================================================================================
+NEXUS AI — CRITICAL VALUES (KEEP THIS HANDY)
+================================================================================
+
+YOUR ENCRYPTION KEY (Already Generated):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ENCRYPTION_KEY=5558f233fb391f8d7e5eb9b86ce43c5f34f664069e2ebfbc0eb519d9896cad59
+
+[Copy this exactly when adding to Vercel]
+
+================================================================================
+STRIPE SETUP — What You're Looking For
+================================================================================
+
+After setting up 3 products and API keys in Stripe, you'll have 6 values:
+
+1. STRIPE_SECRET_KEY=sk_live_...
+   [From Stripe Developers > API keys > Secret key]
+
+2. STRIPE_WEBHOOK_SECRET=whsec_...
+   [From Stripe Developers > Webhooks > Signing secret]
+
+3. NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
+   [From Stripe Developers > API keys > Publishable key]
+
+4. STRIPE_RECRUIT_PRICE_ID=price_...
+   [From product: RECRUIT ($97/mo)]
+
+5. STRIPE_OPERATOR_PRICE_ID=price_...
+   [From product: OPERATOR ($497/mo)]
+
+6. STRIPE_EMPIRE_PRICE_ID=price_...
+   [From product: EMPIRE ($2,497/mo)]
+
+================================================================================
+CLERK — What You Need
+================================================================================
+
+You should already have these from .env.local
+
+1. CLERK_SECRET_KEY=sk_live_...
+2. NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_...
+
+Get from: Clerk Dashboard > API Keys
+
+================================================================================
+DATABASE — From Team Member (Person 1)
+================================================================================
+
+DATABASE_URL=postgresql://user:password@db.neon.tech:5432/nexus?sslmode=require
+
+[From Neon console > Connection string]
+
+================================================================================
+CACHE — From Team Member (Person 2)
+================================================================================
+
+UPSTASH_REDIS_REST_URL=https://...upstash.io
+UPSTASH_REDIS_REST_TOKEN=AYjc1YtASzz8...
+
+[From Upstash REST API section]
+
+================================================================================
+JOB QUEUE — From Team Member (Person 3)
+================================================================================
+
+INNGEST_API_KEY=...
+INNGEST_EVENT_KEY=...
+
+[From Inngest Settings > Keys]
+
+================================================================================
+MONITORING — From Team Member (Person 4)
+================================================================================
+
+NEXT_PUBLIC_SENTRY_DSN=https://...@sentry.io/...
+SENTRY_AUTH_TOKEN=sntrys_...
+
+[From Sentry project settings]
+
+================================================================================
+CONSTANTS (Don't Change)
+================================================================================
+
+NODE_ENV=production
+NEXT_PUBLIC_APP_URL=https://nexus-ai.com
+NEXT_PUBLIC_APP_NAME=NEXUS AI
+
+================================================================================
+VERCEL ENVIRONMENT VARIABLES (19 Total)
+================================================================================
+
+When you get to Vercel > Settings > Environment Variables, add:
+
+Core:
+  □ NODE_ENV=production
+  □ NEXT_PUBLIC_APP_URL=https://nexus-ai.com
+  □ NEXT_PUBLIC_APP_NAME=NEXUS AI
+
+Encryption:
+  □ ENCRYPTION_KEY=5558f233fb391f8d7e5eb9b86ce43c5f34f664069e2ebfbc0eb519d9896cad59
+
+Database:
+  □ DATABASE_URL=[from Neon]
+
+Clerk:
+  □ CLERK_SECRET_KEY=[from Clerk]
+  □ NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=[from Clerk]
+
+Stripe (6 values):
+  □ STRIPE_SECRET_KEY=[from Stripe]
+  □ STRIPE_WEBHOOK_SECRET=[from Stripe]
+  □ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=[from Stripe]
+  □ STRIPE_RECRUIT_PRICE_ID=[from Stripe product]
+  □ STRIPE_OPERATOR_PRICE_ID=[from Stripe product]
+  □ STRIPE_EMPIRE_PRICE_ID=[from Stripe product]
+
+Cache:
+  □ UPSTASH_REDIS_REST_URL=[from Upstash]
+  □ UPSTASH_REDIS_REST_TOKEN=[from Upstash]
+
+Job Queue:
+  □ INNGEST_API_KEY=[from Inngest]
+  □ INNGEST_EVENT_KEY=[from Inngest]
+
+Monitoring:
+  □ NEXT_PUBLIC_SENTRY_DSN=[from Sentry]
+  □ SENTRY_AUTH_TOKEN=[from Sentry]
+
+TOTAL: 19 variables
+
+================================================================================
+WHICH ARE SENSITIVE? (Check "Sensitive" box in Vercel)
+================================================================================
+
+Mark as SENSITIVE:
+  ✓ ENCRYPTION_KEY
+  ✓ DATABASE_URL
+  ✓ CLERK_SECRET_KEY
+  ✓ STRIPE_SECRET_KEY
+  ✓ STRIPE_WEBHOOK_SECRET
+  ✓ UPSTASH_REDIS_REST_TOKEN
+  ✓ INNGEST_API_KEY
+  ✓ INNGEST_EVENT_KEY
+  ✓ SENTRY_AUTH_TOKEN
+
+Mark as NOT SENSITIVE:
+  ☐ Everything else (it's public)
+
+================================================================================
+STRIPE WEBHOOK ENDPOINT (Update After Deploy)
+================================================================================
+
+Initial: https://nexus-ai.com/api/webhooks/stripe
+(Vercel will reject this before domain is live)
+
+After domain is live:
+1. Go to Stripe Developers > Webhooks
+2. Update endpoint URL to match your live domain
+3. Test webhook delivery
+4. Verify 200 response in Vercel logs
+
+================================================================================
+IMPORTANT: DO NOT SKIP
+================================================================================
+
+✅ ENCRYPTION_KEY must be exactly 64 hex characters
+✅ Copy/paste values exactly (no extra spaces)
+✅ Mark sensitive variables as "Sensitive" in Vercel
+✅ All variables should be in "Production" environment
+✅ Don't commit this file to Git (it has your key)
+✅ Don't share these values in email/Slack (use 1Password)
+
+================================================================================
+SUPPORT
+================================================================================
+
+If something doesn't work:
+1. Check VERIFY_DEPLOYMENT.md troubleshooting
+2. Check Vercel logs for error messages
+3. Verify all variables match exactly
+4. Check service dashboards (Stripe, Neon, etc.)
+
+================================================================================

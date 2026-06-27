@@ -224,3 +224,69 @@ model ApiKey {
   lastUsedAt      DateTime?
   createdAt       DateTime          @default(now())
 }
+
+// Audit Logging
+enum AuditAction {
+  // Auth events
+  USER_LOGIN
+  USER_LOGOUT
+  USER_CREATED
+  USER_UPDATED
+
+  // Organization events
+  ORG_CREATED
+  ORG_UPDATED
+
+  // Agent events
+  AGENT_CREATED
+  AGENT_UPDATED
+  AGENT_DELETED
+  AGENT_ACTIVATED
+  AGENT_PAUSED
+
+  // Integration events
+  INTEGRATION_CONNECTED
+  INTEGRATION_DISCONNECTED
+  INTEGRATION_UPDATED
+  INTEGRATION_SYNC
+
+  // Task events
+  TASK_CREATED
+  TASK_EXECUTED
+  TASK_COMPLETED
+  TASK_FAILED
+
+  // Subscription events
+  SUBSCRIPTION_CREATED
+  SUBSCRIPTION_UPGRADED
+  SUBSCRIPTION_DOWNGRADED
+  SUBSCRIPTION_CANCELED
+  SUBSCRIPTION_RENEWED
+
+  // Admin events
+  ADMIN_ACTION
+  API_KEY_CREATED
+  API_KEY_DELETED
+  API_KEY_ROTATED
+}
+
+model AuditLog {
+  id              String            @id @default(cuid())
+  organizationId  String
+  userId          String
+
+  action          AuditAction
+  resource        String            // e.g., "Agent", "Integration", "Subscription"
+  resourceId      String?           // ID of the affected resource
+
+  changes         String?           // JSON diff of what changed
+  metadata        String?           // Additional context as JSON
+  ipAddress       String?
+  userAgent       String?
+
+  createdAt       DateTime          @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+}

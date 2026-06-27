@@ -1,22 +1,43 @@
 import crypto from 'crypto';
 
-const encryptionKey = process.env.ENCRYPTION_KEY || 'dev-key-32-chars-minimum!!!!!!';
+// During build, use a placeholder. At runtime, the actual key will be used.
+const encryptionKeyHex = process.env.ENCRYPTION_KEY || '0'.repeat(64);
+const encryptionKey = Buffer.from(encryptionKeyHex, 'hex');
+const IV_LENGTH = 16;
+const ALGORITHM = 'aes-256-gcm';
 
 export function generateOAuthState(): string {
   return crypto.randomBytes(32).toString('hex');
 }
 
 export function encryptToken(token: string): string {
-  const cipher = crypto.createCipher('aes-256-cbc', encryptionKey);
+  const iv = crypto.randomBytes(IV_LENGTH);
+  const cipher = crypto.createCipheriv(ALGORITHM, encryptionKey, iv);
+
   let encrypted = cipher.update(token, 'utf8', 'hex');
   encrypted += cipher.final('hex');
-  return encrypted;
+
+  const authTag = cipher.getAuthTag();
+  // Format: iv:authTag:ciphertext
+  return `${iv.toString('hex')}:${authTag.toString('hex')}:${encrypted}`;
 }
 
 export function decryptToken(encrypted: string): string {
-  const decipher = crypto.createDecipher('aes-256-cbc', encryptionKey);
-  let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+  const parts = encrypted.split(':');
+  if (parts.length !== 3) {
+    throw new Error('Invalid encrypted token format');
+  }
+
+  const [ivHex, authTagHex, encryptedHex] = parts;
+  const iv = Buffer.from(ivHex, 'hex');
+  const authTag = Buffer.from(authTagHex, 'hex');
+
+  const decipher = crypto.createDecipheriv(ALGORITHM, encryptionKey, iv);
+  decipher.setAuthTag(authTag);
+
+  let decrypted = decipher.update(encryptedHex, 'hex', 'utf8');
   decrypted += decipher.final('utf8');
+
   return decrypted;
 }
 
