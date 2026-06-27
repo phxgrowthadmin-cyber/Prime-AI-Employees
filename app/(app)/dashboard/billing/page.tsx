@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { CheckCircle, ArrowRight, Loader, AlertCircle } from "lucide-react";
-import { useUpgradeSubscription } from "@/hooks/useSubscription";
+import { useUpgradeTier } from "@/hooks/useSubscription";
 
 const TIERS = [
   {
@@ -29,7 +29,7 @@ export default function BillingPage() {
   const { isLoaded, userId } = useAuth();
   const [currentPlan] = useState("RECRUIT");
   const [error, setError] = useState("");
-  const upgradeMutation = useUpgradeSubscription();
+  const upgradeMutation = useUpgradeTier();
 
   if (!isLoaded) return <div>Loading...</div>;
   if (!userId) redirect("/sign-in");
