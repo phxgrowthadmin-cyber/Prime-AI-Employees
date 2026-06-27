@@ -54,14 +54,19 @@ export default function IntegrationsPage() {
   const connectedProviders = new Set(integrationsList.data?.map(i => i.provider) ?? []);
 
   const handleConnect = async (provider: IntegrationProvider, name: string) => {
+    console.log('Connect clicked:', provider, name);
     setError("");
     try {
+      console.log('Starting mutation...');
       await createIntegration.mutateAsync({
         provider,
         name,
       });
+      console.log('Mutation succeeded');
     } catch (err) {
-      setError(`Failed to connect ${name}: ${err instanceof Error ? err.message : "Unknown error"}`);
+      const errorMsg = `Failed to connect ${name}: ${err instanceof Error ? err.message : "Unknown error"}`;
+      console.error('Mutation failed:', errorMsg);
+      setError(errorMsg);
     }
   };
 
