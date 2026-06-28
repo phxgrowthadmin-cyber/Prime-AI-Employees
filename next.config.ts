@@ -1,57 +1,27 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // Security headers
+  // Security headers — iframe/embed protections are prod-only so local
+  // dev previews can render the site in tooling iframes.
   async headers() {
+    const isProd = process.env.NODE_ENV === 'production';
     return [
       {
         source: '/:path*',
         headers: [
-          // HTTPS enforcement
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=31536000; includeSubDomains; preload',
-          },
-          // Prevent MIME sniffing
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          // Clickjacking protection
-          {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
-          },
-          // XSS protection
-          {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
-          },
-          // Referrer policy
-          {
-            key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin',
-          },
-          // Permissions policy
-          {
-            key: 'Permissions-Policy',
-            value: 'geolocation=(), microphone=(), camera=(), payment=()',
-          },
-          // DNS prefetch control
-          {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on',
-          },
-          // Cross-origin embedder policy
-          {
-            key: 'Cross-Origin-Embedder-Policy',
-            value: 'require-corp',
-          },
-          // Cross-origin opener policy
-          {
-            key: 'Cross-Origin-Opener-Policy',
-            value: 'same-origin',
-          },
+          { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains; preload' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-XSS-Protection', value: '1; mode=block' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'geolocation=(), microphone=(), camera=(), payment=()' },
+          { key: 'X-DNS-Prefetch-Control', value: 'on' },
+          ...(isProd
+            ? [
+                { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+                { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
+                { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+              ]
+            : []),
         ],
       },
       // API routes - more restrictive

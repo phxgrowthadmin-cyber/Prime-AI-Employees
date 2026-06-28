@@ -46,7 +46,9 @@ model Organization {
 enum SubscriptionTier {
   RECRUIT
   OPERATOR
+  COMMANDER
   EMPIRE
+  SOVEREIGN
   CUSTOM
 }
 
