@@ -1,100 +1,148 @@
 'use client';
 
-/**
- * FloatingLogosCss - Pure CSS orbit fallback
- * Used when WebGL unavailable or on low-end devices
- * 12 integration logos orbiting a glowing NEXUS core
- */
-
-const INTEGRATIONS = [
-  { icon: '💬', name: 'Slack', color: '#36C5F0' },
-  { icon: '🎮', name: 'Discord', color: '#5865F2' },
-  { icon: '🎯', name: 'HubSpot', color: '#FF7A59' },
-  { icon: '🏢', name: 'Salesforce', color: '#00A1E0' },
-  { icon: '📝', name: 'Notion', color: '#000000' },
-  { icon: '💳', name: 'Stripe', color: '#635BFF' },
-  { icon: '⚡', name: 'Zapier', color: '#FF4F00' },
-  { icon: '📧', name: 'Google', color: '#4285F4' },
-  { icon: '📱', name: 'Microsoft', color: '#0078D4' },
-  { icon: '📋', name: 'Airtable', color: '#18BFFF' },
-  { icon: '📨', name: 'Telegram', color: '#0088CC' },
-  { icon: '📈', name: 'Pipedrive', color: '#2EBF91' },
+const SOCIAL_PLATFORMS = [
+  { name: 'Instagram', label: 'IG', color: '#E4405F', icon: '📷' },
+  { name: 'TikTok', label: 'TK', color: '#000000', icon: '♪' },
+  { name: 'YouTube', label: 'YT', color: '#FF0000', icon: '▶' },
+  { name: 'Twitter', label: 'X', color: '#000000', icon: '𝕏' },
+  { name: 'LinkedIn', label: 'LI', color: '#0A66C2', icon: 'in' },
+  { name: 'Facebook', label: 'FB', color: '#1877F2', icon: 'f' },
+  { name: 'Discord', label: 'DC', color: '#5865F2', icon: '◉' },
+  { name: 'Snapchat', label: 'SC', color: '#FFFC00', icon: '👻' },
+  { name: 'WhatsApp', label: 'WA', color: '#25D366', icon: '💬' },
+  { name: 'Pinterest', label: 'PI', color: '#E60023', icon: 'P' },
+  { name: 'Threads', label: 'TH', color: '#000000', icon: '@' },
+  { name: 'Reddit', label: 'RD', color: '#FF4500', icon: 'r/' },
 ];
 
+interface Ring {
+  platforms: typeof SOCIAL_PLATFORMS;
+  radius: number;
+  duration: number;
+  delay: number;
+}
+
 export function FloatingLogosCss() {
+  const rings: Ring[] = [
+    {
+      platforms: SOCIAL_PLATFORMS.slice(0, 4),
+      radius: 130,
+      duration: 22,
+      delay: 0,
+    },
+    {
+      platforms: SOCIAL_PLATFORMS.slice(4, 8),
+      radius: 220,
+      duration: 30,
+      delay: 0.5,
+    },
+    {
+      platforms: SOCIAL_PLATFORMS.slice(8, 12),
+      radius: 320,
+      duration: 42,
+      delay: 1,
+    },
+  ];
+
   return (
-    <div className="relative w-full h-96 flex items-center justify-center">
-      {/* Center glowing orb */}
-      <div className="absolute w-24 h-24 rounded-full bg-gradient-to-br from-primary via-secondary to-primary animate-glow" />
-      <div className="absolute w-24 h-24 rounded-full blur-2xl bg-primary opacity-30 animate-glow" />
-      <div className="absolute text-4xl font-bold text-white z-10">⚡</div>
+    <div className="relative w-full min-h-screen flex items-center justify-center bg-bg-primary overflow-hidden">
+      {/* Space vignette */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(ellipse at center, rgba(8,9,10,0) 40%, rgba(8,9,10,0.8) 100%)',
+        }}
+      />
 
-      {/* Orbiting logos */}
-      <div className="relative w-full h-full">
-        {INTEGRATIONS.map((integration, i) => {
-          const angle = (i / INTEGRATIONS.length) * 360;
-          const duration = 20 + (i % 5) * 3;
-          const delay = i * 0.5;
-
-          return (
-            <div
-              key={integration.name}
-              className="absolute w-16 h-16 -left-8 -top-8"
-              style={{
-                left: '50%',
-                top: '50%',
-                animation: `orbit ${duration}s linear infinite`,
-                animationDelay: `${delay}s`,
-                transformOrigin: '0 0',
-              }}
-            >
-              {/* Glass card */}
-              <div
-                className="relative w-16 h-16 rounded-2xl glass flex flex-col items-center justify-center group hover:scale-110 transition cursor-pointer"
-                style={{
-                  borderColor: integration.color,
-                  borderWidth: '1px',
-                }}
-              >
-                {/* Glow on hover */}
-                <div
-                  className="absolute inset-0 rounded-2xl blur-md opacity-0 group-hover:opacity-50 transition"
-                  style={{
-                    backgroundColor: integration.color,
-                    zIndex: -1,
-                  }}
-                />
-
-                {/* Logo */}
-                <span className="text-2xl">{integration.icon}</span>
-
-                {/* Label on hover */}
-                <div className="absolute -bottom-8 text-xs font-semibold text-text-secondary opacity-0 group-hover:opacity-100 transition whitespace-nowrap">
-                  {integration.name}
-                </div>
-              </div>
-            </div>
-          );
-        })}
+      {/* Center NEXUS orb */}
+      <div
+        className="absolute w-28 h-28 rounded-full z-20"
+        style={{
+          background: 'radial-gradient(circle, #6C63FF 0%, #00D4FF 100%)',
+          boxShadow: '0 0 80px #6C63FF, 0 0 160px rgba(0,212,255,0.4)',
+        }}
+      />
+      <div className="absolute z-30 font-bold text-sm text-white tracking-widest">
+        NEXUS
       </div>
 
-      {/* Orbit CSS animation */}
+      {/* Three orbit rings */}
+      {rings.map((ring, ringIdx) => (
+        <div key={ringIdx}>
+          {ring.platforms.map((platform, logoIdx) => {
+            const baseAngle = (logoIdx / ring.platforms.length) * 360;
+            const keyframeName = `orbit-ring-${ringIdx}`;
+
+            return (
+              <div
+                key={platform.name}
+                className="absolute"
+                style={{
+                  left: '50%',
+                  top: '50%',
+                  width: '64px',
+                  height: '64px',
+                  marginLeft: '-32px',
+                  marginTop: '-32px',
+                  animation: `${keyframeName} ${ring.duration}s linear infinite`,
+                  animationDelay: `${ring.delay}s`,
+                  '--base-angle': `${baseAngle}deg`,
+                } as React.CSSProperties & { '--base-angle': string }}
+              >
+                {/* Logo card */}
+                <div
+                  className="relative w-16 h-16 rounded-2xl glass flex items-center justify-center group hover:scale-110 transition cursor-pointer border"
+                  style={{
+                    backgroundColor: platform.color,
+                    borderColor: platform.color,
+                    opacity: 0.9,
+                  }}
+                >
+                  {/* Label */}
+                  <div className="text-white font-bold text-xs text-center">
+                    {platform.label}
+                  </div>
+
+                  {/* Glow on hover */}
+                  <div
+                    className="absolute inset-0 rounded-2xl blur-xl opacity-0 group-hover:opacity-70 transition"
+                    style={{
+                      backgroundColor: platform.color,
+                      zIndex: -1,
+                    }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ))}
+
+      {/* Orbit CSS animations */}
       <style>{`
-        @keyframes orbit {
-          0% {
-            transform: translate(-50%, -50%) rotate(0deg) translateX(180px) rotate(0deg);
+        @keyframes orbit-ring-0 {
+          from {
+            transform: translate(-50%, -50%) rotate(var(--base-angle)) translateX(130px) rotate(calc(-1 * var(--base-angle)));
           }
-          100% {
-            transform: translate(-50%, -50%) rotate(360deg) translateX(180px) rotate(-360deg);
+          to {
+            transform: translate(-50%, -50%) rotate(calc(var(--base-angle) + 360deg)) translateX(130px) rotate(calc(-1 * (var(--base-angle) + 360deg)));
           }
         }
-
-        @keyframes glow {
-          0%, 100% {
-            box-shadow: 0 0 20px rgba(108, 99, 255, 0.6), 0 0 40px rgba(0, 212, 255, 0.3);
+        @keyframes orbit-ring-1 {
+          from {
+            transform: translate(-50%, -50%) rotate(var(--base-angle)) translateX(220px) rotate(calc(-1 * var(--base-angle)));
           }
-          50% {
-            box-shadow: 0 0 30px rgba(108, 99, 255, 0.8), 0 0 60px rgba(0, 212, 255, 0.5);
+          to {
+            transform: translate(-50%, -50%) rotate(calc(var(--base-angle) + 360deg)) translateX(220px) rotate(calc(-1 * (var(--base-angle) + 360deg)));
+          }
+        }
+        @keyframes orbit-ring-2 {
+          from {
+            transform: translate(-50%, -50%) rotate(var(--base-angle)) translateX(320px) rotate(calc(-1 * var(--base-angle)));
+          }
+          to {
+            transform: translate(-50%, -50%) rotate(calc(var(--base-angle) + 360deg)) translateX(320px) rotate(calc(-1 * (var(--base-angle) + 360deg)));
           }
         }
       `}</style>

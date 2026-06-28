@@ -8,8 +8,10 @@ const DynamicHero = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="w-full h-[600px] bg-gradient-to-b from-bg-primary to-[#0F1117] flex items-center justify-center">
-        <div className="text-text-secondary animate-pulse">Loading 3D experience...</div>
+      <div className="w-full h-screen bg-bg-primary flex items-center justify-center">
+        <div className="text-text-secondary animate-pulse text-sm tracking-widest">
+          Entering space...
+        </div>
       </div>
     ),
   }
@@ -18,26 +20,37 @@ const DynamicHero = dynamic(
 export default function HomePage() {
   return (
     <div className="space-y-0">
-      {/* Immersive Hero Section */}
-      <section className="relative overflow-hidden">
+      {/* Full-screen Hero with Content Overlay */}
+      <section className="relative w-full h-screen overflow-hidden">
         <DynamicHero />
 
-        {/* Content Overlay on Hero */}
-        <div className="relative -mt-48 z-10">
-          <div className="container mx-auto px-4 py-20 text-center">
-            <div className="space-y-6">
-              <h2 className="text-4xl md:text-5xl font-bold">
+        {/* Gradient fade for readability */}
+        <div
+          className="absolute inset-x-0 bottom-0 h-96 pointer-events-none"
+          style={{
+            background: 'linear-gradient(to top, #08090A 0%, rgba(8,9,10,0.6) 50%, transparent 100%)',
+          }}
+        />
+
+        {/* Content Overlay in Bottom Third */}
+        <div className="absolute inset-x-0 bottom-0 z-10 pb-20 pointer-events-none">
+          <div className="container mx-auto px-4 text-center">
+            <div className="pointer-events-auto space-y-6 max-w-3xl mx-auto">
+              <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
                 <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-                  Integrate Everything
+                  AI Agents
                 </span>
-              </h2>
-              <p className="text-lg text-text-secondary max-w-2xl mx-auto">
-                Connect 50+ tools and services. Your agents work seamlessly with the tools you already use.
+                <br />
+                <span className="text-text-primary">That Never Sleep</span>
+              </h1>
+              <p className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto leading-relaxed">
+                Deploy intelligent autonomous agents that handle your entire business. Sales, support,
+                research, operations—all running 24/7.
               </p>
               <div className="flex gap-4 justify-center pt-4 flex-wrap">
                 <Link href="/sign-up">
                   <Button size="lg" variant="default">
-                    Start Building
+                    Get Started Free
                   </Button>
                 </Link>
                 <Link href="/pricing">
