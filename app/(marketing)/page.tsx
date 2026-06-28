@@ -1,16 +1,15 @@
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { NeuralOrb } from '@/components/3d/neural-orb';
 import dynamic from 'next/dynamic';
 
-// Dynamically import 3D component to avoid SSR issues
-const DynamicNeuralOrb = dynamic(
-  () => import('@/components/3d/neural-orb').then((mod) => ({ default: mod.NeuralOrb })),
+// Dynamically import 3D hero to avoid SSR issues
+const DynamicHero = dynamic(
+  () => import('@/components/3d/neural-network-hero').then((mod) => ({ default: mod.NeuralNetworkHero })),
   {
     ssr: false,
     loading: () => (
-      <div className="w-full h-full bg-bg-secondary rounded-2xl flex items-center justify-center">
-        <div className="text-text-secondary animate-pulse">Loading 3D scene...</div>
+      <div className="w-full h-[600px] bg-gradient-to-b from-bg-primary to-[#0F1117] flex items-center justify-center">
+        <div className="text-text-secondary animate-pulse">Loading 3D experience...</div>
       </div>
     ),
   }
@@ -18,44 +17,42 @@ const DynamicNeuralOrb = dynamic(
 
 export default function HomePage() {
   return (
-    <div className="space-y-24 py-20">
-      {/* Hero Section with 3D Background */}
+    <div className="space-y-0">
+      {/* Immersive Hero Section */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute top-0 -right-40 w-80 h-80 bg-primary/20 rounded-full blur-3xl opacity-40 animate-pulse-slow" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-secondary/20 rounded-full blur-3xl opacity-40 animate-pulse-slow" />
-        </div>
+        <DynamicHero />
 
-        <div className="container mx-auto px-4 min-h-[700px] flex flex-col items-center justify-center text-center space-y-8">
-          <div className="w-full h-96 rounded-2xl border border-default bg-bg-secondary/50 glass overflow-hidden mb-8">
-            <DynamicNeuralOrb />
-          </div>
-
-          <h1 className="text-6xl md:text-7xl font-bold leading-tight max-w-4xl">
-            <span className="text-primary">AI Agents</span> as Your{' '}
-            <span className="text-secondary">Employees</span>
-          </h1>
-          <p className="text-xl text-text-secondary max-w-2xl leading-relaxed">
-            Enterprise-grade AI agents that work like real employees. Automate any business
-            process, connect to any tool, and scale infinitely.
-          </p>
-          <div className="flex gap-4 justify-center pt-8 flex-wrap">
-            <Link href="/sign-up">
-              <Button size="lg" variant="default">
-                Get Started Free
-              </Button>
-            </Link>
-            <Link href="/agents">
-              <Button size="lg" variant="outline">
-                Explore Agents
-              </Button>
-            </Link>
+        {/* Content Overlay on Hero */}
+        <div className="relative -mt-48 z-10">
+          <div className="container mx-auto px-4 py-20 text-center">
+            <div className="space-y-6">
+              <h2 className="text-4xl md:text-5xl font-bold">
+                <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+                  Integrate Everything
+                </span>
+              </h2>
+              <p className="text-lg text-text-secondary max-w-2xl mx-auto">
+                Connect 50+ tools and services. Your agents work seamlessly with the tools you already use.
+              </p>
+              <div className="flex gap-4 justify-center pt-4 flex-wrap">
+                <Link href="/sign-up">
+                  <Button size="lg" variant="default">
+                    Start Building
+                  </Button>
+                </Link>
+                <Link href="/pricing">
+                  <Button size="lg" variant="outline">
+                    View Pricing
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section className="container mx-auto px-4">
+      {/* Features Grid Section */}
+      <section className="container mx-auto px-4 py-24 border-t border-border/10">
         <div className="text-center space-y-4 mb-16">
           <h2 className="text-4xl font-bold">Why NEXUS AI?</h2>
           <p className="text-text-secondary max-w-2xl mx-auto">
@@ -96,7 +93,7 @@ export default function HomePage() {
               description: 'Deploy unlimited agents across your organization with zero infrastructure overhead.',
             },
           ].map((feature, i) => (
-            <div key={i} className="glass p-8 rounded-2xl space-y-4 hover:border-primary/30 transition group">
+            <div key={i} className="glass p-8 rounded-2xl space-y-4 hover:border-primary/30 transition group border border-border/20">
               <div className="text-4xl group-hover:scale-110 transition">{feature.icon}</div>
               <h3 className="text-xl font-semibold text-primary">{feature.title}</h3>
               <p className="text-text-secondary">{feature.description}</p>
@@ -106,8 +103,8 @@ export default function HomePage() {
       </section>
 
       {/* Comparison Section */}
-      <section className="container mx-auto px-4">
-        <div className="bg-bg-secondary rounded-2xl p-12 space-y-8">
+      <section className="container mx-auto px-4 py-24 border-t border-border/10">
+        <div className="glass rounded-2xl p-12 space-y-8 border border-border/20">
           <div className="text-center space-y-2">
             <h2 className="text-4xl font-bold">Agents vs. Traditional Tools</h2>
           </div>
@@ -139,27 +136,29 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="container mx-auto px-4 py-20 rounded-2xl border border-default bg-gradient-to-r from-primary/10 to-secondary/10 text-center space-y-6">
-        <h2 className="text-4xl font-bold">Ready to transform?</h2>
-        <p className="text-text-secondary max-w-2xl mx-auto text-lg">
-          Start with RECRUIT ($97/mo) and scale to EMPIRE. No credit card required.
-        </p>
-        <div className="flex gap-4 justify-center">
-          <Link href="/sign-up">
-            <Button size="lg" variant="accent">
-              Start Free Trial
-            </Button>
-          </Link>
-          <Link href="/pricing">
-            <Button size="lg" variant="outline">
-              View Pricing
-            </Button>
-          </Link>
+      <section className="container mx-auto px-4 py-24 border-t border-border/10">
+        <div className="glass rounded-2xl p-12 bg-gradient-to-r from-primary/10 to-secondary/10 text-center space-y-6 border border-border/20">
+          <h2 className="text-4xl font-bold">Ready to transform?</h2>
+          <p className="text-text-secondary max-w-2xl mx-auto text-lg">
+            Start with RECRUIT ($97/mo) and scale to EMPIRE. No credit card required.
+          </p>
+          <div className="flex gap-4 justify-center">
+            <Link href="/sign-up">
+              <Button size="lg" variant="default">
+                Start Free Trial
+              </Button>
+            </Link>
+            <Link href="/pricing">
+              <Button size="lg" variant="outline">
+                View Pricing
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* Trust Section */}
-      <section className="container mx-auto px-4 text-center space-y-12">
+      <section className="container mx-auto px-4 py-24 border-t border-border/10 text-center space-y-12">
         <div>
           <h2 className="text-3xl font-bold mb-2">Trusted by Teams Worldwide</h2>
           <p className="text-text-secondary">Powering automation for companies in 20+ countries</p>
@@ -172,7 +171,7 @@ export default function HomePage() {
             { value: '99.9%', label: 'Uptime' },
             { value: '47ms', label: 'Avg Response' },
           ].map((stat, i) => (
-            <div key={i} className="glass p-6 rounded-lg text-center">
+            <div key={i} className="glass p-6 rounded-lg text-center border border-border/20">
               <div className="text-3xl font-bold text-secondary">{stat.value}</div>
               <div className="text-text-secondary text-sm">{stat.label}</div>
             </div>
